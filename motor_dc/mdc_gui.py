@@ -500,7 +500,7 @@ class DCMotorGUI:
         # Método para guardar datos
         pass
 
-    def update_graph(self, time_data, temp_data, power_data, k, label=['Temperature', 'Heater Power'], color=['-r', '-b'], clear=True):
+    def update_graph(self, time_data, temp_data, power_data, k, label=['Angular velocity', 'Voltage'], color=['-r', '-b'], clear=True):
         """
         Update the graph with new data from the TCLab device and the control action. 
         """
