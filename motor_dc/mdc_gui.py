@@ -118,7 +118,7 @@ class DCMotorGUI:
         self.entry_setpoint = tk.Entry(self.frame_controls, font=font, width=10, 
                                        validate='key', validatecommand=validation)
         self.entry_setpoint.grid(row=2, column=1, padx=5, pady=5)
-        self.label_sp_units = tk.Label(self.frame_controls, text="[°C]", 
+        self.label_sp_units = tk.Label(self.frame_controls, text="[v]", 
                                        font=font, bg=bg_color, 
                                        anchor='nw')
         self.label_sp_units.grid(row=2, column=2, sticky="nsew", padx=5, pady=5)
@@ -147,7 +147,7 @@ class DCMotorGUI:
 
         #label para mostrar el setpoint y la duración enviadas al presionar el botón send
         self.label_sent = tk.Label(self.frame_controls, 
-                                   text=f"Setpoint: {self.setpoint} [°C]\n Duration: {self.duration} [s]",
+                                   text=f"Setpoint: {self.setpoint} [v]\n Duration: {self.duration} [s]",
                                    font=font, bg=bg_color, justify='left')
         self.label_sent.grid(row=4, columnspan=2, column=0)
 
@@ -484,7 +484,7 @@ class DCMotorGUI:
             self.entry_duration.delete(0, tk.END)  # Delete the contents of the entry
 
         # Update the label to show the values sent
-        self.label_sent.config(text=f"Setpoint: {self.setpoint} [°C]\n Duration: {self.duration} [s]")
+        self.label_sent.config(text=f"Setpoint: {self.setpoint} [v]\n Duration: {self.duration} [s]")
 
 
     def load_data(self):
