@@ -7,6 +7,7 @@ from mdc_model import DCMotorModel
 from mdc_parameters import DCMotorParameters
 import tkinter as tk
 import threading
+from control.matlab import *
 
 
 class DCMotorGUI:
@@ -31,7 +32,7 @@ class DCMotorGUI:
         #========  CREATE THE OBJECTS ==============================================================
         #================================================================================================
         self.motor_model = DCMotorModel()
-        self.motor_parameters = DCMotorParameters
+        self.motor_parameters = DCMotorParameters()
         #self.motor_ft = DCMotorFT()
 
         # Set the main window properties
