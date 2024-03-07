@@ -389,12 +389,16 @@ class DCMotorGUI:
 
     def validate_numeric_input(self, input):
         """
-        Validate that the input is a number or an empty string in Entry widgets.
+        Validate that the input is a float, an integer or an empty string in Entry widgets.
         """
-        if input.isdigit() or input == "":
+        if input == "":
             return True
         else:
-            return False
+            try:
+                float(input)
+                return True
+            except ValueError:
+                return False
 
 
     def regression_model_edo(self):
