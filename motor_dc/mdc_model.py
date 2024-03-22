@@ -18,7 +18,10 @@ class DCMotorModel:
         pass
 
     
-    
+    #modify initial conditions
+    def set_x0(self, x0):
+        self.x0 = x0
+        
     def update_data(self, data):
         self.data = data
 

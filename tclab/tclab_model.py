@@ -3,8 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 from scipy.optimize import minimize
-#from tclab_class import InterfazTCLab
-#from tclab_plotter import TCLabPlotter
+from tclab_class import InterfazTCLab
+from tclab_plotter import TCLabPlotter
 from tclab_parameters import TCLabParameters
 import tkinter as tk
 
@@ -40,6 +40,9 @@ class TCLabModel:
             self.nl_params = default_parameters
 
 
+    #modify initial conditions
+    def set_x0(self, x0):
+        self.x0 = x0
     
     def update_data(self, data):
         self.data = data
