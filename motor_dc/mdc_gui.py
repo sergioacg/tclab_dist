@@ -27,7 +27,8 @@ class DCMotorGUI:
         self.connected = False # To know if the tclab is connected
         self.setpoint = None # Setpoint variable
         self.duration = None # Duration variable
-        
+
+               
         #================================================================================================
         #========  CREATE THE OBJECTS ==============================================================
         #================================================================================================
@@ -39,6 +40,19 @@ class DCMotorGUI:
         self.master = master
         self.master.title("DC Motor Control Interface")
         self.master.geometry("+0+0") 
+
+        #================================================================================================
+        #========  CREATE MENU BAR FOR THE GUI     ======================================================
+        #================================================================================================
+        self.menubar = tk.Menu(self.master)
+        self.master.config(menu=self.menubar)
+        self.modelbar = tk.Menu(self.menubar, tearoff=0)
+        self.modelbar.add_command(label="View Transfer Function", command=self.view_tf)
+        self.modelbar.add_command(label="View Parameters", command=self.view_parameters)
+        self.modelbar.add_separator()
+        self.modelbar.add_command(label="Exit", command=self.master.quit)
+
+        self.menubar.add_cascade(label="Model", menu=self.modelbar)
 
         #================================================================================================
         #========  CREATE FRAMES CONNECT AND TEXT WIDGETS ======================================================
@@ -578,6 +592,19 @@ class DCMotorGUI:
             self.radio_pid.grid_remove()
             self.pid_tuning_menu.grid_remove()
 
+    def view_tf(self):
+        """
+        View the transfer function of the TCLab
+        """
+        # Ask if self.lin_params exists
+        pass
+
+    def view_parameters(self):
+        """
+        View the parameters of the TCLab
+        """
+        pass
+    
     def stability_lgr(self):
         """
         Stability analysis by LGR
