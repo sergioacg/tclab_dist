@@ -7,6 +7,7 @@ from tclab_class import InterfazTCLab
 from tclab_model import TCLabModel
 from tclab_ft import TCLabFT
 from tclab_parameters import TCLabParameters
+from tclab_stability import TCLabStability
 from tools import *
 import tkinter as tk
 import threading
@@ -38,6 +39,7 @@ class TCLabGUI:
         self.tclab_model = TCLabModel()
         self.tclab_parameters = TCLabParameters()
         self.tclab_ft = TCLabFT()
+        self.tclab_stability = TCLabStability()
 
         # Set the main window properties
         self.master = master

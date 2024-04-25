@@ -5,6 +5,8 @@ import time
 import datetime
 from mdc_model import DCMotorModel
 from mdc_parameters import DCMotorParameters
+from mdc_ft import DCMotorFT
+from mdc_stability import DCMotorStability
 import tkinter as tk
 import threading
 from control.matlab import *
@@ -34,7 +36,8 @@ class DCMotorGUI:
         #================================================================================================
         self.motor_model = DCMotorModel()
         self.motor_parameters = DCMotorParameters()
-        #self.motor_ft = DCMotorFT()
+        self.motor_ft = DCMotorFT()
+        self.motor_stability = DCMotorStability()
 
         # Set the main window properties
         self.master = master
