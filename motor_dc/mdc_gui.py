@@ -518,9 +518,15 @@ class DCMotorGUI:
         else:
             return None
 
-    def save_data(self):
-        # Método para guardar datos
-        pass
+    @staticmethod
+    def save_txt(t, u1, y1, filename='mdc_step.txt'):
+        """
+        save the TCLAB data in a text file
+        """
+        data = np.vstack((t,u1,y1)).T
+        top = 'Time (sec), Voltage (v), Angular velocity'
+        np.savetxt(filename, data, delimiter=',', header=top, comments='')
+
 
     def update_graph(self, time_data, temp_data, power_data, k, label=['Angular velocity', 'Voltage'], color=['-r', '-b'], clear=True):
         """

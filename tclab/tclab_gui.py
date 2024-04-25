@@ -558,9 +558,20 @@ class TCLabGUI:
         else:
             return None
 
-    def save_data(self):
-        # Método para guardar datos
-        pass
+    @staticmethod
+    def save_txt(t, u1, y1, filename='tclab_step.txt'):
+        """
+        save the TCLAB data in a text file
+        args:
+            t: time
+            u1: heater power
+            y1: temperature
+            filename: name of the file
+        """
+        data = np.vstack((t,u1,y1)).T
+        top = 'Time (sec), Heater 1 (%), Temperature 1 (degC)'
+        np.savetxt(filename, data, delimiter=',', header=top, comments='')
+
 
     def update_graph(self, time_data, temp_data, power_data, k, label=['Temperature', 'Heater Power'], color=['-r', '-b'], clear=True):
         """
