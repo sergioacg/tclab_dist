@@ -502,7 +502,7 @@ class DCMotorGUI:
             self.entry_setpoint.delete(0, tk.END)  # Delete the contents of the entry
 
         if duration_entry:  # if duration_entry is not empty
-            self.duration = int(duration_entry)
+            self.duration = float(duration_entry)
             self.entry_duration.delete(0, tk.END)  # Delete the contents of the entry
 
         # Update the label to show the values sent

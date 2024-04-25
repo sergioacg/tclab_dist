@@ -26,6 +26,15 @@ class TCLabFT:
         self.lin_params = lin_params
         self.data = data
 
+    def update_data(self, data):
+        self.data = data
+
+    def update_x0(self, x0):
+        self.x0 = x0
+
+    def update_lin_params(self, lin_params):
+        self.lin_params = lin_params
+
     
     
 if __name__ == "__main__":
