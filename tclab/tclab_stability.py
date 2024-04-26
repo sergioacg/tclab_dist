@@ -58,6 +58,10 @@ class TCLabStability:
         plt.tight_layout()
         plt.show()
 
+    def pzanalysis(self, plot=True, print_pz=True):
+        """ Plot the poles and zeros of the system. """
+        pass
+
     def margin_plot(self):
         """margin_plot(sysdata)
 

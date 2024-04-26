@@ -275,20 +275,29 @@ class TCLabGUI:
 
         #radio button to select stability analysys by LGR or Bode
         self.stability_type = tk.IntVar(value=-1)
+        
+        self.radio_pzmap = tk.Radiobutton(self.frame_options, text="PZMAP",
+                                            variable=self.stability_type, value="pzmap",
+                                            font=font, bg=bg_color, anchor='nw',
+                                            command=self.stability_pzmap)
+        self.radio_pzmap.grid(row=6, column=1, sticky="nsew", padx=5, pady=5)
+
+
         self.radio_lgr = tk.Radiobutton(self.frame_options, text="LGR",
                                             variable=self.stability_type, value="lgr",
                                             font=font, bg=bg_color, anchor='nw',
                                             command=self.stability_lgr)
-        self.radio_lgr.grid(row=6, column=1, sticky="nsew", padx=5, pady=5)
+        self.radio_lgr.grid(row=6, column=2, sticky="nsew", padx=5, pady=5)
         self.radio_bode = tk.Radiobutton(self.frame_options, text="Bode",
                                             variable=self.stability_type, value="bode",
                                             font=font, bg=bg_color, anchor='nw',
                                             command=self.stability_bode)
-        self.radio_bode.grid(row=6, column=2, sticky="nsew", padx=5, pady=5)
+        self.radio_bode.grid(row=6, column=3, sticky="nsew", padx=5, pady=5)
 
         # Ocultar inicialmente los Radiobuttons
         self.radio_lgr.grid_remove()
         self.radio_bode.grid_remove()
+        self.radio_pzmap.grid_remove()
 
         #================================================================================================
         #========  CONTROLLERS ==============================================================================
@@ -624,10 +633,12 @@ class TCLabGUI:
         if self.stability.get():
             self.radio_lgr.grid()
             self.radio_bode.grid()
+            self.radio_pzmap.grid()
             
         else:
             self.radio_lgr.grid_remove()
             self.radio_bode.grid_remove()
+            self.radio_pzmap.grid_remove()
 
     def toggle_controller(self):
         """
@@ -656,6 +667,12 @@ class TCLabGUI:
     def view_parameters(self):
         """
         View the parameters of the TCLab
+        """
+        pass
+
+    def stability_pzmap(self):
+        """
+        Stability analysis by pole-zero map
         """
         pass
 
