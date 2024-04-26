@@ -3,40 +3,61 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+from mdc_parameters import DCMotorParameters
 from control.matlab import *
 
-plt.ion()  # Activate interactive mode
 
 #Define DCMotorStability class to analyse the system by LGR and Bode 
 class DCMotorStability:
 
     def __init__(self, sys=None):
         self.sys = sys
+        self.parameters = DCMotorParameters()
 
     def system(self, sys):
         self.sys = sys
 
     def lgr(self, xlim=None, ylim=None):
-        """lgr(sysdata, xlim=None, ylim=None)
+        """ Plot the root locus of the given system. """
+        if self.sys is not None:
+            pass
+        else:
+            print("System not defined.")
 
-        Plot the root locus of the given system.
 
-        Parameters
+    def get_gain(self):
+        """ Request user to input the gain value using DCMotorParameters. """
+        param_specs = [{"name": "K", "label": "Gain K", "default": 1.0}]
+        parameters = self.parameters.get_parameters(param_specs)
+        K = parameters['K']
+        return K
 
-        sysdata : LTI system
-            Linear SISO system representing the open-loop transfer function
-
-        Returns
-        -------
-        rlist : array_like
-            Computed root locations
-        klist : array_like
-            Gains at each computed root location
-        """
+    def closed_loop_response(self, K):
+        """ Calculate the closed-loop response for a given gain K. """
         pass
 
+    def display_responses(self, pv, mv):
+        """ Display the process and control responses. """
+        ty, y = pv
+        tu, u = mv
 
+        plt.figure(figsize=(10, 8))
+        plt.subplot(2, 1, 1)
+        plt.plot(ty, y, label='Process Variable (PV)')
+        plt.title('Closed-loop Process Response')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Output Response')
+        plt.legend()
 
+        plt.subplot(2, 1, 2)
+        plt.plot(tu, u, label='Manipulated Variable (MV)')
+        plt.title('Control Effort Response')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Control Effort')
+        plt.legend()
+
+        plt.tight_layout()
+        plt.show()
 
     def margin_plot(self):
         """margin_plot(sysdata)
