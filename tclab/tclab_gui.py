@@ -385,43 +385,50 @@ class TCLabGUI:
         """
         Solve the EDO of the TCLab with the specified parameters
         """
-        specific_params = [
-            {"name": "U", "label": "U", "default": 10},
-            {"name": "alpha", "label": "alpha", "default": 0.01},
-            {"name": "m", "label": "m", "default": 0.004},
-            {"name": "Cp", "label": "Cp", "default": 500},
-            {"name": "A", "label": "A", "default": 0.0012},
-            {"name": "eps", "label": "eps", "default": 0.9},
-            {"name": "sigma", "label": "sigma", "default": 5.67e-8},
-            {"name": "Ta", "label": "Ta", "default": 298}
-        ]
-        opt_params = []
-        default_parameters = {}
-        # Check if setpoint and duration are provided
-        if self.setpoint is not None and self.duration is not None:
-            # Check if the Solve EDO checkbox is checked
-            if self.solve_edo.get():
-                pass
+        try:
+            specific_params = [
+                {"name": "U", "label": "U", "default": 10},
+                {"name": "alpha", "label": "alpha", "default": 0.01},
+                {"name": "m", "label": "m", "default": 0.004},
+                {"name": "Cp", "label": "Cp", "default": 500},
+                {"name": "A", "label": "A", "default": 0.0012},
+                {"name": "eps", "label": "eps", "default": 0.9},
+                {"name": "sigma", "label": "sigma", "default": 5.67e-8},
+                {"name": "Ta", "label": "Ta", "default": 298}
+            ]
+            opt_params = []
+            default_parameters = {}
+            # Check if setpoint and duration are provided
+            if self.setpoint is not None and self.duration is not None:
+                # Check if the Solve EDO checkbox is checked
+                if self.solve_edo.get():
+                    pass
 
+                else:
+                    #clear the graph
+                    self.ax_pv.clear()
+                    self.ax_mv.clear()
+                    self.canvas_pv.draw()
+            
             else:
-                #clear the graph
-                self.ax_pv.clear()
-                self.ax_mv.clear()
-                self.canvas_pv.draw()
-          
-        else:
-            tk.messagebox.showerror("Error", "Please enter the setpoint and duration.")
-            # uncheck the checkbox
+                tk.messagebox.showerror("Error", "Please enter the setpoint and duration.")
+                # uncheck the checkbox
+                self.solve_edo.set(False)
+        except:
+            #unchecked the checkbox
             self.solve_edo.set(False)
 
     def calculate_ts(self):
         """
         Calculate the sampling time of the TCLab
         """
-        
-        # Check if the Calculate Ts checkbox is checked
-        if self.calculate_sampling_time.get():
-            pass
+        try: 
+            # Check if the Calculate Ts checkbox is checked
+            if self.calculate_sampling_time.get():
+                pass
+        except:
+            #unchecked the checkbox
+            self.calculate_sampling_time.set(False)
 
 
     
@@ -470,26 +477,36 @@ class TCLabGUI:
         """
         Regression model of the TCLab
         """
-        #print wait message for optimization calculation
-        self.text_terminal.insert(tk.END, "Wait for the optimization calculation...\n")
-        self.text_terminal.see(tk.END)
+        try:
+            #print wait message for optimization calculation
+            self.text_terminal.insert(tk.END, "Wait for the optimization calculation...\n")
+            self.text_terminal.see(tk.END)
 
-        pass
+            pass
+        except:
+            #unchecked the checkbox
+            self.regression.set(False)
+            self.toggle_regression()
 
     def regression_model_ft(self):
         """
         Regression model of the TCLab
         """
-        #print wait message for optimization calculation
-        self.text_terminal.insert(tk.END, "Wait for the optimization calculation...\n")
-        self.text_terminal.see(tk.END)
+        try:
+            #print wait message for optimization calculation
+            self.text_terminal.insert(tk.END, "Wait for the optimization calculation...\n")
+            self.text_terminal.see(tk.END)
 
-        pass
-
-        # if entry_sampling_time is not empty calculate discrete transfer function
-        if self.entry_sampling_time.get():
-            Ts = int(self.entry_sampling_time.get())
             pass
+
+            # if entry_sampling_time is not empty calculate discrete transfer function
+            if self.entry_sampling_time.get():
+                Ts = int(self.entry_sampling_time.get())
+                pass
+        except:
+            #unchecked the checkbox
+            self.regression.set(False)
+            self.toggle_regression()
 
                 
     def run_test(self, test_type, test_params):
