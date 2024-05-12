@@ -346,14 +346,13 @@ class DCMotorGUI:
         """
         try:
             specific_params = [
-                {"name": "U", "label": "U", "default": 10},
-                {"name": "alpha", "label": "alpha", "default": 0.01},
-                {"name": "m", "label": "m", "default": 0.004},
-                {"name": "Cp", "label": "Cp", "default": 500},
-                {"name": "A", "label": "A", "default": 0.0012},
-                {"name": "eps", "label": "eps", "default": 0.9},
-                {"name": "sigma", "label": "sigma", "default": 5.67e-8},
-                {"name": "Ta", "label": "Ta", "default": 298}
+            {"name": "J", "label": "J", "default": 0.00040},
+            {"name": "B", "label": "B", "default": 0.0022},
+            {"name": "Km", "label": "Km", "default": 0.2335},
+            {"name": "Ka", "label": "Ka", "default": 0.2335},
+            {"name": "R", "label": "R", "default": 3.4},
+            {"name": "L", "label": "L", "default": 0.0015},
+            {"name": "C", "label": "C", "default": 1e-4}
             ]
             opt_params = []
             default_parameters = {}
