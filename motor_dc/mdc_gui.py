@@ -7,6 +7,7 @@ from mdc_model import DCMotorModel
 from mdc_parameters import DCMotorParameters
 from mdc_ft import DCMotorFT
 from mdc_stability import DCMotorStability
+from controllers import Controllers
 import tkinter as tk
 import threading
 from control.matlab import *

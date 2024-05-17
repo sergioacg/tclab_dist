@@ -5,6 +5,7 @@ import tclab_cae.tclab_cae as tclab
 import numpy as np
 import matplotlib.pyplot as plt
 from tclab_plotter import TCLabPlotter
+from controllers import Controllers
 from tools import *
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
@@ -126,6 +127,92 @@ class InterfazTCLab:
             self.lab.Q1(0)  # Asegura que el heater se apague al finalizar.
             if update_data_callback == None:
                 self.disconnect()
+
+    def closed_loop(self, setpoint, duration, controller, filename='closed_loop_data.txt',update_data_callback=None):
+        nit = int(duration)  # Total number of iterations
+        ts_samples = int(controller.Ts)  # Sampling period in seconds (assuming Ts is an integer)
+
+        # Initialize arrays to store time, control actions, system outputs, errors, and setpoints
+        t = np.zeros(nit)
+        u = np.zeros(nit)
+        y = np.ones(nit) * self.lab.T1
+        e = np.zeros(nit)
+        r = np.zeros(nit)
+
+        # Initialize arrays to store measured time and temperature
+        tm = np.zeros(nit)
+
+        start_time = time.time()  # Record the start time
+
+        # Set up plotting if no update data callback is provided
+        if update_data_callback is None:
+            plt.ion()  # Enable interactive mode for live plotting
+            plotter = TCLabPlotter()  # Create an instance of the plotter
+            fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 7), sharex=True)  # Create subplots for controlled and manipulated variables
+
+        try:
+            for k in range(1, nit):
+                current_time = time.time()  # Get the current time
+                tm[k] = current_time - start_time  # Calculate elapsed time
+                r[k] = setpoint  # You can update the setpoint in real-time here if desired
+                y[k] = self.lab.T1  # Read the current temperature
+                e[k] = r[k] - y[k]  # Calculate the control error
+
+                # Calculate the control action every Ts
+                if k % ts_samples == 0:
+                    pass
+                else:
+                    pass
+                
+                # Update the graph every second
+                if k % 1 == 0:
+                    if update_data_callback:
+                        update_data_callback(tm, y, u, r, k)  # Update data if callback is provided
+                    else:
+                        # Print current values to the terminal
+                        print(f'{tm[k]:6.1f} {u[k]:6.2f} {y[k]:6.2f}')
+                        # Clear the previous plots
+                        ax1.clear()
+                        ax2.clear()
+                        # Plot the controlled and manipulated variables
+                        plotter.plot_control(tm[:k + 1], y[:k + 1], u[:k + 1], r[:k + 1], ax1=ax1, ax2=ax2)
+                        plt.pause(0.01)  # Pause to allow the plot to update
+
+                # Calculate the sleep time to maintain a consistent loop period
+                sleep_time = start_time + k - time.time()
+                if sleep_time > 0:
+                    time.sleep(sleep_time)
+
+                # Break the loop if stop is requested
+                if self.stop_requested:
+                    break
+
+            self.lab.Q1(0)  # Turn off the heater after completing the loop
+            print("Closed-loop control completed.")
+            
+            # Save the data if no update data callback is provided
+            if update_data_callback is None:
+                self.save_txt(tm, u, y, 'closed_loop_data.txt')
+                input("Press Enter to Finish")
+            else:
+                root = tk.Tk()  # Create a Tkinter root widget
+                root.withdraw()  # Hide the root window
+                if messagebox.askyesno("Save data", "Do you want to save the data?"):
+                    file = filedialog.asksaveasfile(mode='w', defaultextension=".txt", initialfile=filename)
+                    if file is not None:
+                        self.save_txt(tm, u, y, file.name)
+                        file.close()
+                root.destroy()
+
+        except KeyboardInterrupt:
+            print("Closed-loop control interrupted by user.")
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+        finally:
+            self.lab.Q1(0)  # Ensure the heater is turned off in case of interruption
+            if update_data_callback is None:
+                self.disconnect()  # Disconnect from the device if no update data callback is provided
+
 
     @staticmethod
     def save_txt(t, u1, y1, filename='tclab_step.txt'):

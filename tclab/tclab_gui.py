@@ -8,6 +8,7 @@ from tclab_model import TCLabModel
 from tclab_ft import TCLabFT
 from tclab_parameters import TCLabParameters
 from tclab_stability import TCLabStability
+from controllers import Controllers
 from tools import *
 import tkinter as tk
 import threading
