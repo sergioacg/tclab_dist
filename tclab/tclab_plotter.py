@@ -56,7 +56,7 @@ class TCLabPlotter:
         ax.legend()
 
     # Plot controlled and manipulated variables
-    def plot_control(self, time, controlled, manipulated, setpoint, title='Control and Manipulation', controlled_label='Temperature [C]', manipulated_label='Power [%]'):
+    def plot_control(self, time, controlled, manipulated, setpoint, ax1=None, ax2=None, title='Control and Manipulation', controlled_label='Temperature [C]', manipulated_label='Power [%]'):
         """
         Plot the controlled variable with setpoint and the manipulated variable in two subplots
         with shared x-axis (time).
@@ -70,7 +70,8 @@ class TCLabPlotter:
         controlled_label (str): The label for the controlled variable plot.
             manipulated_label (str): The label for the manipulated variable plot.
         """
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 12), sharex=True)  # Create two vertical subplots with shared x-axis
+        if ax1 is None or ax2 is None:
+            fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 12), sharex=True)  # Create two vertical subplots with shared x-axis
 
         # First subplot for the controlled variable and setpoint
         ax1.plot(time, controlled, 'b-', label=controlled_label)
