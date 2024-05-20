@@ -8,6 +8,8 @@ from mdc_parameters import DCMotorParameters
 from mdc_ft import DCMotorFT
 from mdc_stability import DCMotorStability
 from controllers import Controllers
+from scipy.integrate import solve_ivp
+from tools import *
 import tkinter as tk
 import threading
 from control.matlab import *
@@ -468,16 +470,65 @@ class DCMotorGUI:
             self.toggle_regression()
 
                 
+    def sim_motor(self, t, x, V):
+        """
+        Simulate the DCMotor behavior
+
+        """
+        omega, i = x
+        J, B, Km, Ka, R, L, C = [0.00048115,0.0026829,0.22076,0.22076, 4.08,0.011307, 1e-4]        
+        
+        # Differential equations
+        dwdt = (1/J) * (Km * i - B * omega - C * omega**2)
+        didt = (1/L) * (V - R * i - Ka * omega)
+        
+        dxdt = [dwdt, didt]
+        return dxdt
+                
     def run_test(self, test_type, test_params):
         """
         Run a test with the TCLab
         """
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         filename = f'data_{test_type}_{timestamp}.txt'
+        t = np.linspace(0, self.duration, 500)
+        x0 = [0, 0]
         if test_type == 'prbs':
-            pass
+            # Get the PRBS parameters
+            prbs_params = test_params['prbs_params']
+            # Modify the length of the time vector in prbs_params
+            prbs_params[-2] = len(t)
+
+            # Generate the PRBS signal
+            V = SignalGenerator.create_prbs(*prbs_params)
+            #V = self.motor_prbs.prbs(initial_value, amplitude, offset, register_length, frequency_divider, num_samples)
+            # Simulate the motor with the PRBS signal
+            y0 = np.array(x0)
+            ym = np.ones(len(t)) * x0[0] #velocity
+            for i in range(len(t)-1):
+                ts = [t[i], t[i+1]]
+                sol = solve_ivp(self.sim_motor, ts, y0, args=( V[i],))
+                y0 = sol.y[:,-1]
+                ym[i+1] = y0[0]
+            # add a random noise to the angular velocity
+            W = ym + np.random.normal(0, 0.5, len(t))
         else:
-            pass
+            V = self.setpoint           
+            sol = solve_ivp(self.sim_motor, [t[0], t[-1]], x0, t_eval=t, args=(V,), method='RK45')
+            # add a random noise to the angular velocity
+            W = sol.y[0] + np.random.normal(0, 0.5, len(t))
+            # convert Q to array for the plot
+            V = np.ones(len(t)) * V
+
+        self.update_graph(t, W, V, len(t))
+        root = tk.Tk()  # Create a Tkinter root widget
+        root.withdraw()  # Hide the root window
+        if tk.messagebox.askyesno("Save data", "Do you want to save the data?"):
+            file = tk.filedialog.asksaveasfile(mode='w', defaultextension=".txt", initialfile=filename)
+            if file is not None:
+                self.save_txt(t, V, W, file.name)
+                file.close()
+        root.destroy()
     
     def run(self):
         """
@@ -498,9 +549,9 @@ class DCMotorGUI:
                         5,  # amplitude
                         self.setpoint,  # offset
                         10,  # register_length
-                        50,  # frequency_divider
+                        3,  # frequency_divider
                         self.duration,  # num_samples
-                        30  # star_time
+                        10  # star_time
                     ]
                     test_thread = threading.Thread(target=self.run_test, args=("prbs", {"prbs_params": prbs_params}))
                 else:
