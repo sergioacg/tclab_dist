@@ -824,6 +824,64 @@ class TCLabGUI:
         """
         pass
 
+    def tune_controller(self):
+        """
+        Tune the controller based on the selected method and type.
+        """
+        # Check if setpoint and duration are provided
+        if self.setpoint is not None and self.duration is not None:
+            # Check if the tuning method is selected
+            if self.pid_tuning_method.get():
+                # Check if the control type is selected
+                if self.controller_type.get():
+                    # Check if the transfer function is defined
+                    if hasattr(self, 'Gz') and self.Gz is not None:
+                        # Check if the sampling time is defined
+                        Ts = self.Gz.dt
+                        if Ts:
+                            Ts = float(Ts)
+                            # Determine the tuning method and control type
+                            tuning_method = self.pid_tuning_method.get()
+                            control_type = self.controller_type.get()
+
+                            # Get the parameters of the transfer function
+                            K, tau, theta = self.lin_params
+
+                            # Tune the controller
+                            if tuning_method == "Ziegler-Nichols":
+                                Kp, Ti, Td = Controllers.tune_ziegler_nichols(K, theta, tau, Ts, control_type=control_type)
+                            elif tuning_method == "cohen-coon":
+                                Kp, Ti, Td = Controllers.tune_cohen_coon(K, theta, tau, Ts, control_type=control_type)
+                            elif tuning_method == "IAE":
+                                Kp, Ti, Td = Controllers.tune_iae(K, theta, tau, Ts, control_type=control_type)
+                            elif tuning_method == "IAET":
+                                Kp, Ti, Td = Controllers.tune_iaet(K, theta, tau, Ts, control_type=control_type)
+                            else:
+                                tk.messagebox.showerror("Error", "Invalid tuning method.")
+                                return
+                            
+                            init_controller_params = [
+                            {"name": "Kp", "label": "Kp", "default": Kp},
+                            {"name": "Ti", "label": "Ti", "default": Ti},
+                            {"name": "Td", "label": "Td", "default": Td}
+                            ]
+
+                            # Ask the user for the controller parameters to implement
+                            par = self.tclab_parameters.get_parameters(init_controller_params)
+
+                            # Implement the controller
+                            self.controller = Controllers(par['Kp'], par['Ti'], par['Td'], Ts)
+
+
+                        else:
+                            tk.messagebox.showerror("Error", "Please enter the sampling time Ts.")
+                    else:
+                        tk.messagebox.showerror("Error", "Please run the regression model first.")
+                else:
+                    tk.messagebox.showerror("Error", "Please select a controller type.")
+            else:
+                tk.messagebox.showerror("Error", "Please select a tuning method.")
+
 #================================================================================
     
 # Ejecución principal
