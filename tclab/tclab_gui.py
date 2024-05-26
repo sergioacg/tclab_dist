@@ -12,6 +12,8 @@ from controllers import Controllers
 from tools import *
 import tkinter as tk
 import threading
+import pickle
+import os
 
 
 class TCLabGUI:
@@ -31,7 +33,9 @@ class TCLabGUI:
         self.connected = False # To know if the tclab is connected
         self.setpoint = None # Setpoint variable
         self.duration = None # Duration variable
-
+        self.Gz = self.load_file('Gz')
+        self.lin_params = self.load_file('lin_params')
+        self.edo_params = self.load_file('edo_params')
         
         
         #================================================================================================
@@ -426,6 +430,18 @@ class TCLabGUI:
         try: 
             # Check if the Calculate Ts checkbox is checked
             if self.calculate_sampling_time.get():
+                try:
+                    if self.lin_params is None:
+                        raise ValueError("Linear parameters not found.")
+                    # Create the transfer function
+                    K, tau, theta = self.lin_params
+                    sys = tf([K], [tau, 1])
+                    self.text_terminal.insert(tk.END, f"\n\nTransfer Function from Regresion:\n")
+                except ValueError:
+                    #Create transfer function
+                    num, den = self.tclab_parameters.get_tf()
+                    sys = tf(num, den)
+
                 pass
         except:
             #unchecked the checkbox
@@ -509,6 +525,56 @@ class TCLabGUI:
             self.regression.set(False)
             self.toggle_regression()
 
+    def display_tf(self, lin_params):
+        """ Displays the transfer function and costs, checks for sampling time. """
+        K, tau, theta = lin_params
+        Gs = tf([K], [tau, 1])
+        
+        self.text_terminal.insert(tk.END, f'The transfer function:\n{Gs}\n')
+        self.text_terminal.insert(tk.END, f'Transport delay: {theta}\n')
+        self.text_terminal.see(tk.END)
+
+        # Check if entry_sampling_time is not empty to calculate discrete transfer function
+        Ts = self.entry_sampling_time.get()
+        if Ts:
+            Ts = float(Ts)
+            self.Gz = self.tclab_ft.tfd(K, tau, theta, Ts)
+            self.text_terminal.insert(tk.END, f'\nGz: {self.Gz}\n')
+            self.text_terminal.see(tk.END)
+            #save the discrete transfer function in a file in tclab folder
+            self.save_file('Gz', self.Gz)
+            self.save_file('lin_params', lin_params)
+
+        else:
+            # Show text in RED indicating that if the user put the Ts field
+            # the discrete transfer function will be calculated
+            self.text_terminal.tag_config("red", foreground="red")
+            self.text_terminal.insert(tk.END, "If you want to calculate the discrete transfer function,\n", "red")
+            self.text_terminal.insert(tk.END, "please input the sampling time Ts.\n", "red")
+            self.text_terminal.see(tk.END)
+
+
+    def save_file(self, key, value, name_file='parameters.pkl'):
+        if os.path.exists(name_file):
+            with open(name_file, 'rb') as file:
+                parameters = pickle.load(file)
+        else:
+            parameters = {}
+
+        parameters[key] = value
+
+        with open(name_file, 'wb') as file:
+            pickle.dump(parameters, file)
+
+    def load_file(self, key, name_file='parameters.pkl'):
+        if os.path.exists(name_file):
+            with open(name_file, 'rb') as file:
+                parameters = pickle.load(file)
+                return parameters.get(key, None)
+        return None
+
+    def get_setpoint_duration(self):
+        return self.setpoint, self.duration
                 
     def run_test(self, test_type, test_params):
         """
@@ -680,13 +746,28 @@ class TCLabGUI:
         View the transfer function of the TCLab
         """
         # Ask if self.lin_params exists
-        pass
+        try:
+            #display the transfer function
+            self.display_tf(self.lin_params)
+            
+        except:
+            tk.messagebox.showerror("Error", "Please run the regression model first.")
 
     def view_parameters(self):
         """
         View the parameters of the TCLab
         """
-        pass
+        # Ask if self.edo_params exists
+        try:
+            #display the parameters
+            if self.edo_params is None:
+                raise Exception
+            self.text_terminal.insert(tk.END, f'The parameters of the EDO model: {self.edo_params}\n')
+            self.text_terminal.see(tk.END)
+            
+        except Exception as e:
+            tk.messagebox.showerror("Error", "Please run the regression model first.")
+
 
     def stability_pzmap(self):
         """
@@ -703,24 +784,6 @@ class TCLabGUI:
     def stability_bode(self):
         """
         Stability analysis by Bode
-        """
-        pass
-
-    def controller_p(self):
-        """
-        P controller
-        """
-        pass
-
-    def controller_pi(self):
-        """
-        PI controller
-        """
-        pass
-
-    def controller_pid(self):
-        """
-        PID controller
         """
         pass
 
