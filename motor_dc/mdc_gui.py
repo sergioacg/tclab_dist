@@ -293,11 +293,17 @@ class DCMotorGUI:
         #================================================================================================
         #========  CONTROLLERS ==============================================================================
         #================================================================================================
-        
+        self.controller_active = tk.BooleanVar()
+        self.check_controller_active = tk.Checkbutton(self.frame_options, text="Closed Loop",
+                                                 variable=self.controller_active, 
+                                                 command=self.toggle_test_type,
+                                                 font=font, bg=bg_color, anchor='nw')
+        self.check_controller_active.grid(row=7, column=0, sticky="nsew", padx=5, pady=5)
+
         #center de label 'Controllers'
         self.label_controllers = tk.Label(self.frame_options, text="Controllers",
                                             font=font, bg=bg_color, anchor='nw', justify='center')
-        self.label_controllers.grid(row=7, columnspan=3, column=0)
+        self.label_controllers.grid(row=7, columnspan=2, column=1)
 
         # pop up menu to select the tuning method
         self.pid_tuning_method = tk.StringVar()
@@ -421,6 +427,12 @@ class DCMotorGUI:
             self.radio_prbs.grid()
             # Seleccionar "Step Test" por defecto
             self.test_type.set("step")
+            # Deactivate controller_active checkbox
+            self.controller_active.set(False)
+        elif self.controller_active.get():
+            self.radio_step.grid_remove()
+            self.radio_prbs.grid_remove()
+            self.collect_data.set(False)
         else:
             self.radio_step.grid_remove()
             self.radio_prbs.grid_remove()
@@ -710,10 +722,15 @@ class DCMotorGUI:
             print("Data provided to update_terminal is not in the correct format.")
 
 
-    def update_data(self, time_data, temp_data, power_data, k):
+    def update_data(self, time_data, vel_data, power_data, k):
+        self.master.after(1, self.update_graph, time_data, vel_data, power_data, k)
+        self.master.after(1, self.update_terminal, time_data, vel_data, power_data, k)
 
-        self.master.after(1, self.update_graph, time_data, temp_data, power_data, k)
-        self.master.after(1, self.update_terminal, time_data, temp_data, power_data, k)
+    def update_data_controller(self, time_data, vel_data, power_data, setpoint, k):
+        self.master.after(1, self.update_graph, time_data, setpoint, power_data, k, ['Setpoint', 'Power'], ['--r', '-k'], False)
+        self.master.after(1, self.update_graph, time_data, vel_data, power_data, k, ['Velocity', 'Power'], ['-k', '-k'], False)
+        self.master.after(1, self.update_terminal, time_data, vel_data, power_data, k)
+
 
     def toggle_stability(self):
         """
@@ -775,24 +792,6 @@ class DCMotorGUI:
     def stability_bode(self):
         """
         Stability analysis by Bode
-        """
-        pass
-
-    def controller_p(self):
-        """
-        P controller
-        """
-        pass
-
-    def controller_pi(self):
-        """
-        PI controller
-        """
-        pass
-
-    def controller_pid(self):
-        """
-        PID controller
         """
         pass
 

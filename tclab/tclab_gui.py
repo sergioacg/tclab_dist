@@ -307,11 +307,17 @@ class TCLabGUI:
         #================================================================================================
         #========  CONTROLLERS ==============================================================================
         #================================================================================================
-        
+        self.controller_active = tk.BooleanVar()
+        self.check_controller_active = tk.Checkbutton(self.frame_options, text="Closed Loop",
+                                                 variable=self.controller_active, 
+                                                 command=self.toggle_test_type,
+                                                 font=font, bg=bg_color, anchor='nw')
+        self.check_controller_active.grid(row=7, column=0, sticky="nsew", padx=5, pady=5)
+
         #center de label 'Controllers'
         self.label_controllers = tk.Label(self.frame_options, text="Controllers",
                                             font=font, bg=bg_color, anchor='nw', justify='center')
-        self.label_controllers.grid(row=7, columnspan=3, column=0)
+        self.label_controllers.grid(row=7, columnspan=2, column=1)
 
         # pop up menu to select the tuning method
         self.pid_tuning_method = tk.StringVar()
@@ -459,6 +465,12 @@ class TCLabGUI:
             self.radio_prbs.grid()
             # Seleccionar "Step Test" por defecto
             self.test_type.set("step")
+            # Deactivate controller_active checkbox
+            self.controller_active.set(False)
+        elif self.controller_active.get():
+            self.radio_step.grid_remove()
+            self.radio_prbs.grid_remove()
+            self.collect_data.set(False)
         else:
             self.radio_step.grid_remove()
             self.radio_prbs.grid_remove()
@@ -586,6 +598,24 @@ class TCLabGUI:
             pass
         else:
             pass
+
+    def run_closed_loop(self):
+        """
+        Run the TCLab in closed loop mode
+        """
+        try:
+            self.tune_controller()
+            #clear graph
+            self.clear_graph()
+            timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+            filename = f'data_closed_loop_{timestamp}.txt'
+
+            # Run the closed loop test
+            pass
+
+        except Exception as e:
+            #show the exception message
+            tk.messagebox.showerror("Error", e)
     
     def run(self):
         """
@@ -598,8 +628,10 @@ class TCLabGUI:
         else:
             # Check if setpoint and duration are provided
             if self.setpoint is not None and self.duration is not None:
+                if self.controller_active.get():
+                    test_thread = threading.Thread(target=self.run_closed_loop)
                 # Determine the test type and run the appropriate test
-                if self.test_type.get() == "step":
+                elif self.test_type.get() == "step":
                     test_thread = threading.Thread(target=self.run_test, args=("step", {"step_test": self.setpoint}))
                 elif self.test_type.get() == "prbs":
                     prbs_params = [
@@ -705,9 +737,14 @@ class TCLabGUI:
 
 
     def update_data(self, time_data, temp_data, power_data, k):
-
         self.master.after(1, self.update_graph, time_data, temp_data, power_data, k)
         self.master.after(1, self.update_terminal, time_data, temp_data, power_data, k)
+
+    def update_data_controller(self, time_data, temp_data, power_data, setpoint, k):
+        self.master.after(1, self.update_graph, time_data, setpoint, power_data, k, ['Setpoint', 'Heater Power'], ['--r', '-k'], False)
+        self.master.after(1, self.update_graph, time_data, temp_data, power_data, k, ['Temperature', 'Heater Power'], ['-k', '-k'], False)
+        self.master.after(1, self.update_terminal, time_data, temp_data, power_data, k)
+
 
     def toggle_stability(self):
         """
